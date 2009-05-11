@@ -1,12 +1,12 @@
-name:           pgn
-version:        0.1
-license:        GPL
-license-file:   LICENSE
-author:         dan corson <danl@alum.mit.edu>
-synopsis:       <syn>
-build-type:     Simple
-build-depends:  base, haskell98
+name:            pgn
+version:         0.1
+license:         BSD3
+license-file:    LICENSE
+author:          dan corson <danl@alum.mit.edu>
+synopsis:        general pgn reading/writing;
+                 supports large boards and extended piece-sets.
+build-type:      Simple
+build-depends:   base, haskell98, parsec >= 3
 
-executable:     pgn
-main-is:        Main.hs
-hs-source-dirs: src
+exposed-modules: Data.PGN, Data.SAN
+hs-source-dirs:  src

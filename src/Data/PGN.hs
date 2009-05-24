@@ -1,5 +1,6 @@
 module Data.PGN (
   PGN(..),
+  Result(..),
   pgnParser
 ) where
 
@@ -13,6 +14,7 @@ import Text.Parsec
 import Text.Parsec.Language (emptyDef)
 import qualified Text.Parsec.Token as P
 
+-- TODO: separated annotations like "1. d4 $9" as well
 data PGN = PGN {
   pgnTags :: [Tag],
   pgnMoves :: [(Move, Annotation)],
@@ -23,7 +25,7 @@ data PGN = PGN {
 type Tag = (String, String)
 
 data Result = WhiteWin | BlackWin | DrawnGame | OtherResult
-  deriving (Eq, Show)
+  deriving (Eq, Show, Enum)
 
 lexer :: P.TokenParser ()
 lexer = P.makeTokenParser emptyDef {

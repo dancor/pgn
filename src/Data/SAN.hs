@@ -37,7 +37,7 @@ annotationParser :: Parsec String () Annotation
 annotationParser = many $ oneOf "!?+#"
 
 colParser :: Parsec String () Int
-colParser = (\ x -> ord x - ord 'a' + 1) <$> lower
+colParser = (\ x -> ord x - ord 'a' + 1) <$> oneOf ['a'..'w']
 
 moveParser :: Parsec String () Move
 moveParser = castlingParser <|> do

@@ -25,7 +25,7 @@ data PGN = PGN {
 type Tag = (String, String)
 
 data Result = WhiteWin | BlackWin | DrawnGame | OtherResult
-  deriving (Eq, Show, Enum)
+  deriving (Eq, Show, Enum, Ord)
 
 lexer :: P.TokenParser ()
 lexer = P.makeTokenParser emptyDef {

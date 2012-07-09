@@ -2,7 +2,8 @@ module Data.SAN (
   Move(..),
   Annotation,
   Piece,
-  moveAnnParser
+  moveAnnParser,
+  showMove
 ) where
 
 import Control.Applicative hiding (many, (<|>))
@@ -64,6 +65,19 @@ moveParser = castlingParser <|> do
   promote <- optionMaybe $ char '=' >> upper
   ann <- optionMaybe annotationParser
   return $ Move pieceMb col1Mb' row1Mb' isCap col2 row2 promote
+
+showMove (Move p x y isCap x2 y2 prom) = concat [
+  maybe "" (:[]) p,
+  maybe "" showCol x,
+  maybe "" show y,
+  if isCap then "x" else "",
+  showCol x2,
+  show y2,
+  maybe "" (('=' :) . (:[])) prom
+  ]
+  where
+  showCol x = [chr $ x + ord 'a' - 1]
+showMove (Castle p) = if p == 'K' then "O-O" else "O-O-O"
 
 moveAnnParser :: Parsec String () (Move, Annotation)
 moveAnnParser = liftM2 (,) moveParser annotationParser

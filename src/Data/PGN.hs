@@ -1,16 +1,21 @@
 module Data.PGN (
   PGN(..),
   Result(..),
-  pgnParser
+  pgnParser,
+  showPgn,
+  -- resultOrMoveParser should only be exposed in an internals-only module?
+  resultOrMoveParser
 ) where
 
 import Control.Applicative hiding (many, optional, (<|>))
 import Control.Arrow
 import Control.Monad
 import Data.Char
+import Data.List
+import Data.List.Split
 import Data.Maybe
 import Data.SAN
-import Text.Parsec
+import Text.Parsec as P
 import Text.Parsec.Language (emptyDef)
 import qualified Text.Parsec.Token as P
 
@@ -49,7 +54,7 @@ lexeme = P.lexeme lexer
 pgnSymbol :: Parsec String () String
 pgnSymbol = lexeme $ do
   first <- alphaNum
-  rest <- many (alphaNum <|> oneOf "_+#=:-")
+  rest <- many (alphaNum <|> P.oneOf "_+#=:-")
   return (first:rest)
 
 -- Parsec String () for a PGN string token.
@@ -61,7 +66,7 @@ pgnStringChar :: Parsec String () Char
 pgnStringChar = do
   c <- satisfy (\c -> isPrint c && c /= '"')
   if c == '\\'
-    then oneOf "\\\""
+    then P.oneOf "\\\""
     else return c
 
 pgnTagName :: Parsec String () String
@@ -92,6 +97,10 @@ resultOrMoveParser = (string "*" >> return (Left OtherResult))
   moveAfterNum (Just n) = lexeme (skipMany (char '.')) >> moveAfterNum Nothing
   moveAfterNum Nothing  = Right <$> lexeme moveAnnParser
 
+showResult BlackWin = "0-1"
+showResult WhiteWin = "1-0"
+showResult DrawnGame = "1/2-1/2"
+
 stopOnLeft :: (Monad m) => m (Either d a) -> m (d, [a])
 stopOnLeft p = p >>= \ res -> case res of
   Left stopRes -> return (stopRes, [])
@@ -102,3 +111,14 @@ pgnParser = whiteSpace >> do
   tags <- many tagParser
   (result, moves) <- stopOnLeft resultOrMoveParser <* whiteSpace
   return $ PGN tags moves result
+
+showPgn (PGN tags moves result) = 
+  concatMap (\ (t, v) -> "[" ++ t ++ " \"" ++ v ++ "\"]\n") 
+    (tags ++ [("Result", resStr)]) ++
+  -- todo: annotations
+  intercalate " "
+    (concat . zipWith (\ n l -> (show n ++ ".") : l) [1..] . splitEvery 2 $ 
+    map (showMove . fst) moves) ++
+  " " ++ resStr
+  where
+  resStr = showResult result

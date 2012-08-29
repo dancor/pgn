@@ -6,7 +6,7 @@ author:          dan corson <danl@alum.mit.edu>
 synopsis:        general pgn reading/writing;
                  supports large boards and extended piece-sets.
 build-type:      Simple
-build-depends:   base, haskell98, parsec >= 3
+build-depends:   base, parsec >= 3, split
 
 exposed-modules: Data.PGN, Data.SAN
 hs-source-dirs:  src
